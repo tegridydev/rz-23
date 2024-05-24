@@ -1,0 +1,16 @@
+body {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
+
+.card {
+    margin-bottom: 1rem;
+}
+
+.card-body {
+    text-align: center;
+}
+
+canvas {
+    background-color: #fff;
+}

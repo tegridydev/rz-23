@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RZ-20 Block Visualizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/app.js"></script>
+</head>
+<body class="bg-dark text-light">
+    <div class="container">
+        <h1 class="my-4 text-center">RZ-20 Block Visualizer</h1>
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-secondary text-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Network Stats</h5>
+                        <p id="total-blocks-mined">Total Blocks Mined: 0</p>
+                        <p id="total-rizz-supply">Total RIZZ Supply: 0</p>
+                        <p id="total-storage-size">Total Storage Size: 0 KB</p>
+                        <p id="total-hashrate">Total Hashrate: 0 H/s</p>
+                        <h5 class="card-title mt-4">Bitcoin Stats</h5>
+                        <p id="bitcoin-block-height">Bitcoin Block Height: 0</p>
+                        <p id="bitcoin-hashrate">Bitcoin Hashrate: 0</p>
+                        <p id="bitcoin-block-number">Bitcoin Block Number: 0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <canvas id="blockChart"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
