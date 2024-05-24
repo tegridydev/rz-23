@@ -3,35 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RZ-20 Block Visualizer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
+    <title>RZ-23 Chain Control</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/static/app.js"></script>
+    <style>
+        .sidebar {
+            height: 100%;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .status-indicator {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status-indicator span {
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .status-running {
+            color: green;
+            background-color: #d4edda;
+        }
+        .status-stopped {
+            color: red;
+            background-color: #f8d7da;
+        }
+    </style>
 </head>
-<body class="bg-dark text-light">
-    <div class="container">
-        <h1 class="my-4 text-center">RZ-20 Block Visualizer</h1>
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card bg-secondary text-light">
-                    <div class="card-body">
-                        <h5 class="card-title">Network Stats</h5>
-                        <p id="total-blocks-mined">Total Blocks Mined: 0</p>
-                        <p id="total-rizz-supply">Total RIZZ Supply: 0</p>
-                        <p id="total-storage-size">Total Storage Size: 0 KB</p>
-                        <p id="total-hashrate">Total Hashrate: 0 H/s</p>
-                        <h5 class="card-title mt-4">Bitcoin Stats</h5>
-                        <p id="bitcoin-block-height">Bitcoin Block Height: 0</p>
-                        <p id="bitcoin-hashrate">Bitcoin Hashrate: 0</p>
-                        <p id="bitcoin-block-number">Bitcoin Block Number: 0</p>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <h5 class="text-center">Real-time Data</h5>
+                    <div id="realtime-data">
+                        <!-- Real-time data will be inserted here -->
                     </div>
                 </div>
-            </div>
-            <div class="col-md-9">
-                <canvas id="blockChart"></canvas>
-            </div>
+            </nav>
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">RZ-23 Chain Control</h1>
+                    <div id="chain-status" class="status-indicator">
+                        <!-- Chain status will be inserted here -->
+                    </div>
+                </div>
+                <div class="text-center mb-4">
+                    <button class="btn btn-primary mr-2" onclick="startChain()">Start Chain</button>
+                    <button class="btn btn-danger" onclick="stopChain()">Stop Chain</button>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2 class="text-center">Block Data</h2>
+                        <canvas id="blocksChart"></canvas>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h2 class="text-center">Chain Details</h2>
+                        <div id="chain-details" class="text-center">
+                            <!-- Chain details will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+
+    <script>
+        let chainStatus = 'Stopped';
+
+        function startChain() {
+            fetch('/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                chainStatus = 'Running';
+                updateChainStatus();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function stopChain() {
+            fetch('/stop', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                chainStatus = 'Stopped';
+                updateChainStatus();
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchBlocks() {
+            fetch('/blocks', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                updateChart(data);
+                updateChainDetails(data);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updateChart(blocks) {
+            const ctx = document.getElementById('blocksChart').getContext('2d');
+            const labels = blocks.map(block => `Block ${block.id}`);
+            const data = blocks.map(block => block.reward);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Rewards',
+                        data: data,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChainDetails(blocks) {
+            const chainDetails = document.getElementById('chain-details');
+            const totalRewards = blocks.reduce((acc, block) => acc + block.reward, 0);
+            const totalMiners = blocks.reduce((acc, block) => acc + block.miner_count, 0);
+            const chainSize = blocks.length;
+
+            chainDetails.innerHTML = `
+                <p>Total Rewards: ${totalRewards}</p>
+                <p>Total Miners: ${totalMiners}</p>
+                <p>Chain Size: ${chainSize} blocks</p>
+            `;
+        }
+
+        function fetchRealTimeData() {
+            fetch('/bitcoin', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                const realTimeDataDiv = document.getElementById('realtime-data');
+                realTimeDataDiv.innerHTML = `
+                    <p>Bitcoin Block Height: ${data.height}</p>
+                    <p>Bitcoin Block Hash: ${data.hash}</p>
+                `;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updateChainStatus() {
+            const chainStatusDiv = document.getElementById('chain-status');
+            if (chainStatus === 'Running') {
+                chainStatusDiv.innerHTML = `<span class="status-running">RZ-23 Chain Status: Running</span>`;
+            } else {
+                chainStatusDiv.innerHTML = `<span class="status-stopped">RZ-23 Chain Status: Stopped</span>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchBlocks();
+            fetchRealTimeData();
+            updateChainStatus();
+            setInterval(fetchRealTimeData, 60000);  // Update real-time data every 60 seconds
+        });
+    </script>
 </body>
 </html>

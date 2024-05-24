@@ -31,10 +31,9 @@ The RZ-23 protocol builds upon the RZ-20 Block Visualizer, integrating advanced 
 
 Each RZ-23 block holds data compatible with various types and is open to modular expansion. The data structure includes fields for comprehensive block information and support for advanced features.
 
-**Enhanced RZ-23 Block Example:**
+**\RZ-23 Block Example:**
 
-```json
-{
+```{
   "id": 1,
   "data": "Bitcoin Block Height: 680000",
   "compressed_data": "<binary data>",
@@ -45,7 +44,36 @@ Each RZ-23 block holds data compatible with various types and is open to modular
   "metadata": "Additional metadata from inscriptions",
   "nft_info": {
     "ordinal_id": "12345",
-    "inscription_data": "Image data or other NFT information"
+    "inscription_data": "Image data or other NFT information",
+    "collection_standard": {
+      "meta": {
+        "description": "An amazing NFT collection",
+        "discord_link": "https://discord.gg/example",
+        "icon": "https://example.com/icon.png",
+        "name": "RIZZ Collection",
+        "slug": "rizz-collection",
+        "twitter_link": "https://twitter.com/example",
+        "website_link": "https://example.com"
+      },
+      "inscriptions": [
+        {
+          "id": "af0b19432a676551223e300e7197348b7c225cb7b31d0d7c6e246e382cbf6f81i0",
+          "meta": {
+            "name": "Planetary Ordinal #11",
+            "attributes": [
+              {
+                "trait_type": "Background",
+                "value": "Sun sun"
+              },
+              {
+                "trait_type": "Holes",
+                "value": "rose blossom"
+              }
+            ]
+          }
+        }
+      ]
+    }
   },
   "runes": {
     "function": "DeFi application logic",
@@ -58,7 +86,7 @@ Each RZ-23 block holds data compatible with various types and is open to modular
   "zk_proof": {
     "recursive_proof": "Proof data",
     "previous_proof_hash": "Hash of previous proof"
-  }
+  } 
 }
 ```
 
