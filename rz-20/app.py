@@ -1,23 +1,12 @@
 from flask import Flask, jsonify, request, render_template
-from flask_sqlalchemy import SQLAlchemy
 import brotli
 import hashlib
 import requests
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rz20.db'
-db = SQLAlchemy(app)
 
-class Block(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.Text, nullable=False)
-    compressed_data = db.Column(db.LargeBinary, nullable=False)
-    nonce = db.Column(db.Integer, nullable=False)
-    hash = db.Column(db.String(64), nullable=False)
-    reward = db.Column(db.Float, nullable=False)
-
-with app.app_context():
-    db.create_all()
+# In-memory storage for blocks
+blocks = []
 
 def fetch_bitcoin_data():
     response = requests.get('https://blockstream.info/api/blocks/tip/height')
@@ -37,18 +26,33 @@ def bitcoin():
 def create_block():
     data = request.json['data']
     nonce = request.json['nonce']
+    miner_count = request.json['miner_count']
     compressed_data = brotli.compress(data.encode('utf-8'))
     hash_value = hashlib.sha256((data + str(nonce)).encode('utf-8')).hexdigest()
-    reward = len(compressed_data) / 1024 * 10
-    block = Block(data=data, compressed_data=compressed_data, nonce=nonce, hash=hash_value, reward=reward)
-    db.session.add(block)
-    db.session.commit()
-    return jsonify({'message': 'Block created', 'block': block.id})
+    reward = miner_count  # Flat rate of 1 RIZZ per miner
+    block = {
+        'id': len(blocks) + 1,
+        'data': data,
+        'compressed_data': compressed_data,
+        'nonce': nonce,
+        'hash': hash_value,
+        'reward': reward,
+        'miner_count': miner_count
+    }
+    blocks.append(block)
+    return jsonify({'message': 'Block created', 'block': block['id']})
 
 @app.route('/blocks', methods=['GET'])
 def get_blocks():
-    blocks = Block.query.all()
-    return jsonify([{'id': block.id, 'data': block.data, 'compressed_data': len(block.compressed_data), 'nonce': block.nonce, 'hash': block.hash, 'reward': block.reward} for block in blocks])
+    return jsonify([{
+        'id': block['id'],
+        'data': block['data'],
+        'compressed_data': len(block['compressed_data']),
+        'nonce': block['nonce'],
+        'hash': block['hash'],
+        'reward': block['reward'],
+        'miner_count': block['miner_count']
+    } for block in blocks])
 
 @app.route('/')
 def index():
@@ -60,13 +64,21 @@ def trigger_block():
     block_height = bitcoin_data['height']
     nonce = int(block_height)  # Use block height as a nonce for simplicity
     data = f"Bitcoin Block Height: {block_height}"
+    miner_count = 5  # Example: Assume 5 miners participated
     compressed_data = brotli.compress(data.encode('utf-8'))
     hash_value = hashlib.sha256((data + str(nonce)).encode('utf-8')).hexdigest()
-    reward = len(compressed_data) / 1024 * 10
-    block = Block(data=data, compressed_data=compressed_data, nonce=nonce, hash=hash_value, reward=reward)
-    db.session.add(block)
-    db.session.commit()
-    return jsonify({'message': 'RIZZ Block created', 'block': block.id})
+    reward = miner_count  # Flat rate of 1 RIZZ per miner
+    block = {
+        'id': len(blocks) + 1,
+        'data': data,
+        'compressed_data': compressed_data,
+        'nonce': nonce,
+        'hash': hash_value,
+        'reward': reward,
+        'miner_count': miner_count
+    }
+    blocks.append(block)
+    return jsonify({'message': 'RIZZ Block created', 'block': block['id']})
 
 if __name__ == '__main__':
     app.run(debug=True)

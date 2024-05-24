@@ -1,3 +1,5 @@
+let chartInstance = null;
+
 async function fetchBitcoinData() {
     const response = await fetch('/bitcoin');
     const data = await response.json();
@@ -24,7 +26,13 @@ async function fetchData() {
     document.getElementById('bitcoin-block-number').textContent = `Bitcoin Block Number: ${bitcoinData.id}`;
 
     const ctx = document.getElementById('blockChart').getContext('2d');
-    new Chart(ctx, {
+
+    // Destroy the existing chart instance if it exists
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: blocks.map(block => `Block ${block.id}`),

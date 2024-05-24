@@ -1,113 +1,69 @@
-# rz-20 [RIZZCHAIN]
-RZ-20: A Compression System for Efficient Bitcoin Metadata Inscription
+## RZ-20
 
-## Vision
+### Overview
 
-1. **Hybrid Mining Algorithm**: Devices (miners) will run the mining algorithm that compresses RZ-20 metadata using custom algo
-2. **Masternode Storage**: Miners will store a portion of the compressed RZ-20 metadata, growing their 'masternode' as they process more data
-3. **Incentive Mechanism**: Miners will earn $RIZZ, the native coin for the RZ-20 rizzchain, based on their contribution to processing and storing metadata
+The RZ-20 Block Visualizer is a web application that provides real-time visualization of Bitcoin block data and simulates the creation of RIZZ blocks on top of the Bitcoin blockchain. Each new Bitcoin block triggers the creation of a corresponding RIZZ block, and miners participating in the RIZZ blocks are rewarded with a flat rate of 1 RIZZ.
 
-### Key Components
+### Features
 
-1. **RZ-20 Metadata Compression and Storage**
-2. **Hybrid Mining Algorithm**
-3. **Reward System**
+- **Real-time Bitcoin Block Data**: Fetches and displays the latest Bitcoin block height, hashrate, and block number.
+- **RIZZ Block Simulation**: Simulates RIZZ block creation triggered by new Bitcoin blocks.
+- **In-Memory Data Storage**: Stores all block data in memory for easy testing and development.
 
-### Steps for Implementation
 
-#### 1. RZ-20 Metadata Compression and Storage
+### File Descriptions
 
-**Compression with Brotli**:
-- Miners receive RZ-20 metadata to compress using Brotli.
-- Compressed data is stored in their local masternode.
+- **app.py**: The main Flask application. Handles routes for fetching Bitcoin data, creating and retrieving RIZZ blocks, and serving the frontend.
+- **static/app.js**: JavaScript file for fetching data and updating the frontend dynamically.
+- **static/styles.css**: CSS file for styling the web application with a dark theme.
+- **templates/index.html**: The main HTML template for the web application.
 
-**RZ-20 Compression**:
-```python
-def brotli_compress(data):
-    compressed_data = brotli.compress(data.encode('utf-8'))
-    return compressed_data
+### API Endpoints
 
-def brotli_decompress(compressed_data):
-    decompressed_data = brotli.decompress(compressed_data).decode('utf-8')
-    return decompressed_data
+- **GET /bitcoin**: Fetches the latest Bitcoin block data from the Blockstream API.
+- **POST /blocks**: Creates a new RIZZ block with the provided data.
+- **GET /blocks**: Retrieves all RIZZ blocks stored in memory.
+- **POST /trigger**: Triggers the creation of a new RIZZ block based on the latest Bitcoin block.
 
-metadata = {
-    'Block Hash': '0000000000000000000abc',
-    'Timestamp': '2024-05-24 12:34:56',
-    'Miner Address': '1A2B3C4D5E6F7G8H9I0J',
-    'Transaction Count': '1000',
-    'Block Size': '1MB'
+### Data Structure
+
+RIZZ blocks are stored in memory as a list of dictionaries. Each block contains the following fields:
+- `id`: Unique identifier for the block.
+- `data`: Original data of the block.
+- `compressed_data`: Brotli-compressed data.
+- `nonce`: Nonce value used in the block.
+- `hash`: SHA-256 hash of the block data and nonce.
+- `reward`: Total RIZZ reward for the block.
+- `miner_count`: Number of miners who participated in creating the block.
+
+### Example
+
+Example of a RIZZ block:
+```json
+{
+  "id": 1,
+  "data": "Bitcoin Block Height: 680000",
+  "compressed_data": "<binary data>",
+  "nonce": 680000,
+  "hash": "0000000000000000000abc...",
+  "reward": 5,
+  "miner_count": 5
 }
-
-metadata_str = json.dumps(metadata)
-compressed_data = brotli_compress(metadata_str)
-decompressed_metadata_str = brotli_decompress(compressed_data)
-
-print("Original Metadata:", metadata_str)
-print("Compressed Data Length:", len(compressed_data))
-print("Decompressed Metadata:", decompressed_metadata_str)
-
-def store_in_masternode(compressed_data):
-    data_hash = hashlib.sha256(compressed_data).hexdigest()
-    masternode_storage[data_hash] = compressed_data
-
-store_in_masternode(compressed_data)
-print("Masternode Storage:", masternode_storage)
 ```
 
-#### 2. Hybrid Mining Algorithm
+### Contributing
 
-**Mining Process**:
-- Miners solve cryptographic puzzles (like traditional PoW) while also compressing metadata.
-- Successfully compressed and stored metadata contributes to the miner's reward.
+Contributions are welcome! Please fork the repository and build some cool stuff
 
-**Mining Algorithm RIZZ-X**:
-```python
-def mining_algorithm(metadata):
-    while True:
-        nonce = random.randint(0, 1000000)
-        combined_data = metadata + str(nonce)
-        data_hash = hashlib.sha256(combined_data.encode('utf-8')).hexdigest()
-        
-        if data_hash.startswith('0000'):
-            return nonce, data_hash
+### License
 
-metadata_str = json.dumps(metadata)
-nonce, data_hash = mining_algorithm(metadata_str)
-print(f"Mining successful with nonce: {nonce} and hash: {data_hash}")
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-# Store the compressed data after mining
-store_in_masternode(compressed_data)
-```
+### Acknowledgements
 
-#### 3. Reward System
+- [Flask](https://flask.palletsprojects.com/)
+- [Chart.js](https://www.chartjs.org/)
+- [Bootstrap](https://getbootstrap.com/)
+- [Blockstream API](https://blockstream.info/api/)
 
-**Incentive Mechanism**:
-- Miners are rewarded with $RIZZ based on the amount of data they compress and store.
-- Additional rewards for solving cryptographic puzzles.
-
-**Reward Distribution**:
-```python
-def calculate_reward(masternode_storage):
-    reward_per_kb = 10  # $RIZZ per KB
-    total_data_size = sum(len(data) for data in masternode_storage.values())
-    reward = (total_data_size / 1024) * reward_per_kb
-    return reward
-
-reward = calculate_reward(masternode_storage)
-print(f"Reward earned: {reward} $RIZZ")
-```
-
-### RZ-20 v0.0.1 Framework Overview
-
-1. **Metadata Compression**:
-    - Miners receive metadata to compress using Brotli.
-    - Compressed data is stored locally in the miner's masternode.
-
-2. **Hybrid Mining**:
-    - Miners solve cryptographic puzzles while compressing metadata.
-    - Successful compression and storage increase the miner's masternode size.
-
-3. **Reward System**:
-    - Miners earn $RIZZ based on the amount of data they compress and store.
-    - Rewards are calculated and distributed periodically.
+---
