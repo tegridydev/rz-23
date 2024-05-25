@@ -1,4 +1,4 @@
-### RZ-23 Protocol: Recursive Zero (RZKPs)
+### RZ-23 Framework: Recursive Zero Knowledge Compression (RZKC)
 
 **Overview:**
 The RZ-23 protocol builds upon the RZ-20 Block Visualizer, integrating advanced features from Taproot, BRC-20, Runes, Inscriptions, and Ordinals. This creates a seamless, fluid interoperability layer that meshes various advanced Bitcoin functionalities into a unified, verified proof system backed by Bitcoin. Each new Bitcoin block triggers the creation of a corresponding RZ-23 block, with miners rewarded per block. The RZ-23 protocol emphasizes Recursive Zero-Knowledge Proofs (RZKPs) to enhance verification efficiency and scalability.
